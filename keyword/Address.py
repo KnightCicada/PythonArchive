@@ -130,6 +130,7 @@ if __name__ == '__main__':
           """
     })
 
+
     for keyword in keyWordsList:
         start_url = 'https://www.google.com/search?hl=en&q='
         url = start_url + keyword
