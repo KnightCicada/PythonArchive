@@ -37,7 +37,10 @@ def getAddress(body, addressSet):
     list = BeautifulSoup(body, 'html.parser').find(id='search').find_all(class_='rc')
     # print(list)
     for i in list:
-        href = regexOnion(i.find('a').get('href'))
+        # href = regexOnion(i.find('a').get('href'))
+        # href = regexTor2web(i.find('a').get('href'))
+        href = regexHiddenService(i.find('a').get('href'))
+        # href = regexTorstorm(i.find('a').get('href'))
         href = str(href).replace("['", '').replace("']", '')
         addressSet.add(href)
 
@@ -90,14 +93,13 @@ if __name__ == '__main__':
         # 'site:onion.city',
         # 'site:onion.to',
         # 'site:onion.top',
-        'site:onion.cab',
-        'site:onion.rent',
-        'site:onion.lt',
-        'site:onion.lu',
-        'site:onion.plus',
-        'site:onion.cafe',
+        # 'site:onion.cab',
+        # 'site:onion.rent',
+        # 'site:onion.lt',
+        # 'site:onion.lu',
+        # 'site:onion.plus',
+        # 'site:onion.cafe',
 
-        # 'site:tor2web.io',
         # 'site:tor2web.io',
         # 'site:tor2web.fi',
         # 'site:tor2web.ch',
@@ -116,8 +118,8 @@ if __name__ == '__main__':
     options.add_argument('disable-infobars')
     options.add_argument("--no-sandbox")
     options.add_argument("--lang=zh-CN")
+    options.add_argument("--proxy-server=http://127.0.0.1:7890")
 
-    # options.add_argument("--proxy-server=http://127.0.0.1:7890")
     # print(options.arguments)
 
     browser = webdriver.Chrome(options=options)
