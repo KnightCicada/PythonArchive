@@ -1,4 +1,3 @@
-import math
 import time
 import re
 from bs4 import BeautifulSoup
@@ -10,7 +9,7 @@ def crawlProcess(page, startUrl, keyword, addressSet, browser):
     # browser = webdriver.Firefox()
     for j in range(page):
         try:
-            url = startUrl + keyword + '&start=' + str(10 * j)
+            url = startUrl + keyword + '&first=' + str(15 * j)
             print('爬取  ' + url)
             browser.get(url)
             # js = "var q=document.documentElement.scrollTop=10000"
@@ -19,7 +18,7 @@ def crawlProcess(page, startUrl, keyword, addressSet, browser):
             body = browser.page_source
             getAddress(body, addressSet)
             # 已隐藏相似结果，停止爬取
-            if judge(body) == False:
+            if judge(body) == True:
                 break
             else:
                 continue
@@ -29,18 +28,25 @@ def crawlProcess(page, startUrl, keyword, addressSet, browser):
 
 # 判断是否存在相似结果
 def judge(body):
-    list = BeautifulSoup(body, 'html.parser').find(id='botstuff').find_all(class_='card-section')
-    return len(list) == 0
+    text = BeautifulSoup(body, 'html.parser').find(class_='sb_count').text
+    pattern = re.compile(r'[\d,]*')
+    first = re.search(pattern, text).group(0).replace(' ', '').replace(',', '')
+    pattern = re.compile('(?<=\\().*(?=\\))')
+    tmp = re.search(pattern, text).group(0)
+
+    patternNum = re.compile(r'[\d,]+')
+    target = re.search(patternNum, tmp).group(0).replace(',', '')
+    return first == target
 
 
 def getAddress(body, addressSet):
-    list = BeautifulSoup(body, 'html.parser').find(id='search').find_all(class_='rc')
+    list = BeautifulSoup(body, 'html.parser').find(id='b_results').find_all(class_='b_attribution')
     # print(list)
     for i in list:
-        # href = regexOnion(i.find('a').get('href'))
-        # href = regexTor2web(i.find('a').get('href'))
-        href = regexHiddenService(i.find('a').get('href'))
-        # href = regexTorstorm(i.find('a').get('href'))
+        # href = regexOnion(i.find('cite').text)
+        # href = regexTor2web(i.find('cite').text)
+        href = regexHiddenService(i.find('cite').text)
+        # href = regexTorstorm(i.find('cite').text)
         href = str(href).replace("['", '').replace("']", '')
         addressSet.add(href)
 
@@ -79,7 +85,7 @@ def regexTorstorm(href):
 
 def WriteFile(addressSet):
     for item in addressSet:
-        f = open("address.txt", 'a')
+        f = open("addressB.txt", 'a')
         f.write(item + '\n')
         f.close()
         print(item)
@@ -88,10 +94,10 @@ def WriteFile(addressSet):
 if __name__ == '__main__':
     keyWordsList = (
         # 'site:onion.sh',
+        # 'site:onion.to',
         # 'site:onion.guide',
         # 'site:onion.rip',
         # 'site:onion.city',
-        # 'site:onion.to',
         # 'site:onion.top',
         # 'site:onion.cab',
         # 'site:onion.rent',
@@ -104,7 +110,7 @@ if __name__ == '__main__':
         # 'site:tor2web.fi',
         # 'site:tor2web.ch',
 
-        # 'site:hiddenservice.net',
+        'site:hiddenservice.net',
 
         # 'site:torstorm.org'
     )
@@ -132,9 +138,9 @@ if __name__ == '__main__':
           """
     })
 
-
+    # https: // www.bing.com / search?hl = en & q = site % 3 aonion.sh & start = 30 & first = 15 & FORM = PERE
     for keyword in keyWordsList:
-        start_url = 'https://www.google.com/search?hl=en&q='
+        start_url = 'https://www.bing.com/search?hl=en&q='
         url = start_url + keyword
         try:
             # 获取总结果数
@@ -143,17 +149,17 @@ if __name__ == '__main__':
             # browser.execute_script(js)  # 可执行js，模仿用户操作。此处为将页面拉至最底端。
             # time.sleep(1)
             body = browser.page_source
-            pageInfo = BeautifulSoup(body, 'html.parser').find(id='result-stats').text
-            # print(pageInfo)
-            pattern = re.compile(r'\s[\d,]*')
-            res = re.search(pattern, pageInfo).group(0).replace(' ', '')
+            # pageInfo = BeautifulSoup(body, 'html.parser').find(class_='sb_count').text
+            # # print(pageInfo)
+            # pattern = re.compile(r'[\d,]*')
+            # res = re.search(pattern, pageInfo).group(0).replace(' ', '')
             # print(res)
-            totalAmount = res.replace(',', '')
-            page = math.ceil(int(totalAmount, 10) / 10)
-            print('结果共计 ' + str(page) + ' 页')
+            # totalAmount = res.replace(',', '')
+            # page = math.ceil(int(totalAmount, 15) / 15)
+            # print('结果共计 ' + str(page) + ' 页')
         except:
             continue
-        crawlProcess(page, start_url, keyword, addressSet, browser)
+        crawlProcess(2, start_url, keyword, addressSet, browser)
         time.sleep(3)
 
     WriteFile(addressSet)

@@ -1,5 +1,5 @@
-readPath = 'onions.txt'
-writePath = 'add.txt'
+readPath = 'oniont.txt'
+writePath = 'onions.txt'
 lines_seen = set()
 outFile = open(writePath, 'a+', encoding='utf-8')
 f = open(readPath, 'r', encoding='utf-8')
